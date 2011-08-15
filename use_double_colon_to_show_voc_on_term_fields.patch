@@ -1,0 +1,42 @@
+diff --git a/taxonomy.module b/taxonomy.module
+index 3a5ace4..8761c49 100644
+--- modules/taxonomy/taxonomy.module
++++ modules/taxonomy/taxonomy.module
+@@ -1511,6 +1511,12 @@ function taxonomy_field_widget_form(&$form, &$form_state, $field, $instance, $la
+   foreach ($items as $item) {
+     $tags[$item['tid']] = isset($item['taxonomy_term']) ? $item['taxonomy_term'] : taxonomy_term_load($item['tid']);
+   }
++  if(sizeof($field['settings']['allowed_values'])>1) {
++    foreach($tags as $tid=>$tag) {
++      $tags[$tid]->name .= "::". $tag->vocabulary_machine_name;
++    }
++    print_r($tags);
++  }
+ 
+   $element += array(
+     '#type' => 'textfield',
+@@ -1546,8 +1552,23 @@ function taxonomy_autocomplete_validate($element, &$form_state) {
+     foreach ($typed_terms as $typed_term) {
+       // See if the term exists in the chosen vocabulary and return the tid;
+       // otherwise, create a new 'autocreate' term for insert/update.
+-      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vid' => array_keys($vocabularies)))) {
++      $vids = array_keys($vocabularies);
++      // check to see if someone add a voc name to the end of a term
++      // if so parse it and make that the correct vocab to stor
++      if(preg_match("/(.*)::(.*)/", $typed_term, $matches)) {
++        $vocs = taxonomy_vocabulary_get_names();
++        //allow for search by name in addition to machine name
++        foreach($vocs as $voc) {
++          $vocs[$voc->name] = $voc;
++        }
++        $typed_term = $matches[1];
++        $vid = $vocs[$matches[2]]->vid;
++        $vids = array($vid);
++      }
++
++      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vid' => $vids))) {
+         $term = array_pop($possibilities);
++        
+       }
+       else {
+         $vocabulary = reset($vocabularies);
