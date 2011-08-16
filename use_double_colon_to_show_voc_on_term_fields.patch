@@ -2,7 +2,7 @@ diff --git a/taxonomy.module b/taxonomy.module
 index 3a5ace4..8761c49 100644
 --- modules/taxonomy/taxonomy.module
 +++ modules/taxonomy/taxonomy.module
-@@ -1511,6 +1511,12 @@ function taxonomy_field_widget_form(&$form, &$form_state, $field, $instance, $la
+@@ -1511,6 +1511,13 @@ function taxonomy_field_widget_form(&$form, &$form_state, $field, $instance, $la
    foreach ($items as $item) {
      $tags[$item['tid']] = isset($item['taxonomy_term']) ? $item['taxonomy_term'] : taxonomy_term_load($item['tid']);
    }
@@ -10,7 +10,6 @@ index 3a5ace4..8761c49 100644
 +    foreach($tags as $tid=>$tag) {
 +      $tags[$tid]->name .= "::". $tag->vocabulary_machine_name;
 +    }
-+    print_r($tags);
 +  }
  
    $element += array(
